@@ -26,7 +26,7 @@ pages.forEach(function (pathname) {
   if (pathname in baseWebpackConfig.entry) {
     options.favicon = 'src/images/favicon.ico'
     options.inject = 'body'
-    options.chunks = ['manifest', 'vendors', pathname]
+    options.chunks = ['manifest', 'vendor', pathname]
     options.hash = true
   }
 

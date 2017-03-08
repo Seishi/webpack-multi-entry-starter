@@ -1,6 +1,7 @@
 var path = require('path')
 var utils = require('./utils')
 var config = require('../config')
+var merge = require('webpack-merge')
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -9,7 +10,9 @@ function resolve (dir) {
 var entries = utils.getEntries(['src/scripts/page/**/*.js'], 'src/scripts/page/')
 
 module.exports = {
-  entry: entries,
+  entry: merge(entries, {
+    vendor: ['jquery', './src/scripts/common.js']
+  }),
   output: {
     path: config.build.assetsRoot,
     filename: '[name].js',
