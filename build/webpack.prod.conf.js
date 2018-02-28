@@ -11,31 +11,31 @@ var OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
 
 var env = config.build.env
 
-var pages = Object.keys(utils.getEntries(['src/views/**/*.pug', '!src/views/**/_*.pug'], 'src/views/'))
+var pages = Object.keys(utils.getEntries(['src/pages/**/*.pug', '!src/pages/**/_*.pug'], 'src/pages/'))
 
 baseWebpackConfig.plugins = []
 
 pages.forEach(function (pathname) {
   var options = {
     filename: path.resolve(__dirname, '../dist/' + pathname + '.html'),
-    template: 'src/views/' + pathname + '.pug',
-    inject: false,
+    template: 'src/pages/' + pathname + '.pug',
+    inject: 'body',
     minify: {
       removeComments: true,
       collapseWhitespace: true,
       removeAttributeQuotes: true
     },
+    chunks: utils.getChunks(pathname),
     // 按依赖排序以保证正确加载 chunk
-    chunksSortMode: 'dependency'
+    chunksSortMode: 'dependency',
+    hash: true
   }
 
-  // 只将对应的 entry 插入到页面中
-  if (pathname in baseWebpackConfig.entry) {
-    options.favicon = 'src/images/favicon.ico'
-    options.inject = 'body'
-    options.chunks = ['manifest', 'vendor', pathname]
-    options.hash = true
-  }
+  // options.chunksSortMode = function (chunk1, chunk2) {
+  //   var order1 = chunks.indexOf(chunk1.names[0])
+  //   var order2 = chunks.indexOf(chunk2.names[0])
+  //   return order1 - order2
+  // }
 
   baseWebpackConfig.plugins.push(new HtmlWebpackPlugin(options))
 })
@@ -44,10 +44,11 @@ var webpackConfig = merge(baseWebpackConfig, {
   module: {
     rules: utils.styleLoaders({
       sourceMap: config.build.productionSourceMap,
-      extract: true
+      extract: true,
+      usePostCSS: true
     })
   },
-  devtool: config.build.productionSourceMap ? '#source-map' : false,
+  devtool: config.build.productionSourceMap ? config.build.devtool : false,
   output: {
     path: config.build.assetsRoot,
     filename: utils.assetsPath('scripts/[name].[chunkhash].js'),
@@ -65,7 +66,8 @@ var webpackConfig = merge(baseWebpackConfig, {
       compress: {
         warnings: false
       },
-      sourceMap: true
+      sourceMap: config.build.productionSourceMap,
+      parallel: true
     }),
     // extract css into its own file
     new ExtractTextPlugin({
@@ -73,7 +75,16 @@ var webpackConfig = merge(baseWebpackConfig, {
     }),
     // Compress extracted CSS. We are using this plugin so that possible
     // duplicated CSS from different components can be deduped.
-    new OptimizeCSSPlugin(),
+    // new OptimizeCSSPlugin(),
+    new OptimizeCSSPlugin({
+      cssProcessorOptions: config.build.productionSourceMap
+      ? { safe: true, map: { inline: false } }
+      : { safe: true }
+    }),
+    // keep module.id stable when vender modules does not change
+    new webpack.HashedModuleIdsPlugin(),
+    // enable scope hoisting
+    new webpack.optimize.ModuleConcatenationPlugin(),
     // split vendor js into its own file
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor',

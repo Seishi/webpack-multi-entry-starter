@@ -1,7 +1,9 @@
-var path = require('path')
-var config = require('../config')
-var globby = require('globby')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
+'use strict'
+const path = require('path')
+const config = require('../config')
+const globby = require('globby')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const pkg = require('../package.json')
 
 exports.assetsPath = function (_path) {
   var assetsSubDirectory = process.env.NODE_ENV === 'production'
@@ -71,6 +73,25 @@ exports.styleLoaders = function (options) {
   return output
 }
 
+exports.createNotifierCallback = function () {
+  const notifier = require('node-notifier')
+
+  return (severity, errors) => {
+    if (severity !== 'error') {
+      return
+    }
+    const error = errors[0]
+
+    const filename = error.file && error.file.split('!').pop()
+    notifier.notify({
+      title: pkg.name,
+      message: severity + ': ' + error.name,
+      subtitle: filename || '',
+      icon: path.join(__dirname, 'logo.png')
+    })
+  }
+}
+
 /**
  * 获取入口文件
  * @params {String|Array} globPath 匹配的路径
@@ -92,4 +113,21 @@ exports.getEntries = function (globPath, pathDir) {
   }
 
   return entries
+}
+
+exports.getChunks = function (pathname) {
+  // Pages that share the same chunk can be defined here
+  var chunkMapping = {
+    // 'foo/bar': ['foo'],
+    // 'foo/baz': ['foo']
+  }
+  var chunks = ['manifest', 'vendor']
+
+  if (pathname in chunkMapping) {
+    chunks = chunks.concat(chunkMapping[pathname])
+  } else {
+    chunks = chunks.concat([pathname])
+  }
+
+  return chunks
 }

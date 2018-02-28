@@ -7,11 +7,13 @@ function resolve (dir) {
   return path.join(__dirname, '..', dir)
 }
 
-var entries = utils.getEntries(['src/scripts/page/**/*.js'], 'src/scripts/page/')
+var entries = utils.getEntries(['src/scripts/pages/**/*.js'], 'src/scripts/pages/')
 
 module.exports = {
+  context: path.resolve(__dirname, '../'),
   entry: merge(entries, {
-    vendor: ['jquery', './src/scripts/common.js']
+    // vendor: ['jquery', './src/scripts/common.js']
+    vendor: ['./src/scripts/common.js']
   }),
   output: {
     path: config.build.assetsRoot,
@@ -23,8 +25,11 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.json'],
     alias: {
-      '@': resolve('src'),
-    }
+      '@': resolve('src')
+    },
+  },
+  externals: {
+    jquery: "jQuery"
   },
   module: {
     rules: [
@@ -42,16 +47,19 @@ module.exports = {
         loader: 'babel-loader',
         include: [resolve('src'), resolve('test')]
       },
-      {
-        test: /\.pug$/,
-        loader: 'template-html-loader'
-      },
+      // {
+      //   test: /\.pug$/,
+      //   loader: 'template-html-loader',
+      //   options: {
+      //     publicPath: '/'
+      //   }
+      // },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         loader: 'url-loader',
         query: {
           limit: 10000,
-          name: utils.assetsPath('img/[name].[hash:7].[ext]')
+          name: utils.assetsPath('images/[name].[hash:7].[ext]')
         }
       },
       {

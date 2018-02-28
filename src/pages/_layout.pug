@@ -1,0 +1,31 @@
+doctype html
+html
+  head
+    meta(charset="UTF-8")
+    block title
+      title Document
+    meta(name="MobileOptimized", content="width")
+    meta(http-equiv="X-UA-Compatible", content="IE=Edge,chrome=1")
+    meta(name="HandheldFriendly", content="true")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no")
+    block meta
+    block keyword
+    block description
+    link(rel="shortcut icon", href=locals.resolveUrl('static/images/favicon.ico'))
+    script(src="https://api.html5media.info/1.2.2/html5media.min.js")
+body
+  //- 页头
+  block header
+
+  //- 内容
+  block content
+
+  //- 页脚
+  block footer
+
+  //- 脚本
+  block scripts
+    <!--[if IE 8]>
+    script(src=locals.resolveUrl('static/vendor/respond.js'))
+    <![endif]-->
+    script(src=locals.resolveUrl('static/vendor/modernizr/modernizr.js'))
